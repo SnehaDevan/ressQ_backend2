@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import generics
-from .serializers import (BloodBankDonorSerializer, BloodCompatibilitySerializer,DonorSerializer,CustomUserSerializer)
-from .models import (BloodBankDonor,Donor,BloodCompatibility,CustomAccountManager,NewUser)
+from .serializers import (BloodBankDonorSerializer, BloodCompatibilitySerializer,DonorSerializer,CustomUserSerializer,DistrictSerializer)
+from .models import (BloodBankDonor,Donor,BloodCompatibility,CustomAccountManager,NewUser,Districts)
 from rest_framework import generics,mixins,viewsets,status
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import status
@@ -68,3 +68,7 @@ class DonorDelete(generics.RetrieveDestroyAPIView):
 class BloodBankDonorList(generics.ListAPIView):
     queryset = BloodBankDonor.objects.all()
     serializer_class=DonorSerializer
+
+class DistrictsList(generics.ListAPIView):
+    queryset = Districts.objects.all()
+    serializer_class=DistrictSerializer    

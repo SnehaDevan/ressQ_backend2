@@ -1,4 +1,4 @@
-from .views import (DonorList,DonorCreate, DonorDetail,DonorUpdate,DonorDelete,BloodBankDonorList,CustomUserCreate,BlacklistTokenUpdateView)
+from .views import (DonorList,DonorCreate, DonorDetail,DonorUpdate,DonorDelete,BloodBankDonorList,CustomUserCreate,BlacklistTokenUpdateView,DistrictsList)
 from django.contrib import admin
 from django.urls import path,include
 from rest_framework.routers import DefaultRouter
@@ -17,5 +17,6 @@ urlpatterns = [
     path('api/token/refresh/',TokenRefreshView.as_view(),name="refresh_token"),
     path('create/', CustomUserCreate.as_view(), name="create_user"),
     path('logout/blacklist/', BlacklistTokenUpdateView.as_view(),
-         name='blacklist')
+         name='blacklist'),
+    path('districts/', DistrictsList.as_view()),     
 ]

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import (BloodBankDonor,Donor,BloodCompatibility,NewUser)
+from .models import (BloodBankDonor,Donor,BloodCompatibility,NewUser,Districts)
 from django.conf import settings
 from django.contrib.auth.admin import UserAdmin
 from django.forms import TextInput, Textarea, CharField
@@ -9,6 +9,7 @@ from django.db import models
 admin.site.register(BloodBankDonor)
 admin.site.register(Donor)
 admin.site.register(BloodCompatibility)
+admin.site.register(Districts)
 
 class UserAdminConfig(UserAdmin):
     model = NewUser

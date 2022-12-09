@@ -1,4 +1,5 @@
-from .models import (BloodBankDonor,Donor,BloodCompatibility,CustomAccountManager,NewUser)
+from django.db import models
+from .models import (BloodBankDonor,Donor,BloodCompatibility,CustomAccountManager,NewUser,Districts)
 from rest_framework import serializers
 from datetime import datetime
 from rest_framework.permissions import IsAuthenticated
@@ -48,14 +49,15 @@ class DonorSerializer(serializers.ModelSerializer):
         bleeding=data['bleeding_disorders']
         hepatitis=data['hepatitis']
         hiv=data['hiv']
-        '''date1=data['last_donated_date']
+        date1=data['last_donated_date']
         date2=datetime.now().date()
-        diff=date1-date2'''
-        '''dob=data['dob']
-        diff2=date2-dob'''
+        diff=date2-date1
+        dob=data['dob']
+        diff2=date2-dob
+        
     
 
-        if weight<50 or diseases=='yes' or allergies=='yes' or cardiac=='yes' or bleeding=='yes' or hepatitis=='yes' or hiv=='yes' '''diff.days<90 or diff2.days<6570:''':
+        if weight<50 or diseases=='yes' or allergies=='yes' or cardiac=='yes' or bleeding=='yes' or hepatitis=='yes' or hiv=='yes' or diff.days<90 or diff2.days<6570 : 
             raise serializers.ValidationError('Not eligible for donation.')
 
         '''diseases=data['diseases']
@@ -84,14 +86,22 @@ class DonorSerializer(serializers.ModelSerializer):
 
         return data
 
+    blood_group = serializers.StringRelatedField()
 
+    '''district = serializers.CharField(source='district.district_name')'''
+    '''blood_group = serializers.CharField(source='blood_group.p_blood')'''
     class Meta:
         model=Donor
         fields='__all__'
     
+    
+   
     def to_representation(self,instance):
         rep= super(DonorSerializer,self).to_representation(instance)
-        rep['blood_group'] = instance.blood_group.p_blood
+        rep['district'] = instance.district.district_name
         return rep
-    
 
+class DistrictSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Districts
+        fields='__all__'
