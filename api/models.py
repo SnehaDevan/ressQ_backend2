@@ -85,6 +85,7 @@ class BloodCompatibility(models.Model):
         return self.p_blood
         
 class Donor(models.Model):
+    user_foreign = models.ForeignKey(NewUser, on_delete=models.CASCADE)
     dname = models.CharField(max_length=100)
     gender_choices=[
         ('male',"Male"),
