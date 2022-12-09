@@ -7,6 +7,7 @@ from email.mime import base
 
 router=DefaultRouter()
 urlpatterns = [
+    path('',include(router.urls)),
     path('donors/', DonorList.as_view()),
     path('donors/<int:pk>/', DonorDetail.as_view()),
     path('donors/register/', DonorCreate.as_view()),
