@@ -59,9 +59,13 @@ class DonorSerializer(serializers.ModelSerializer):
         return data
 
 
-
     class Meta:
         model=Donor
         fields='__all__'
+    
+    def to_representation(self,instance):
+        rep= super(DonorSerializer,self).to_representation(instance)
+        rep['blood_group'] = instance.blood_group.p_blood
+        return rep
     
 
