@@ -59,6 +59,10 @@ class NewUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.user_name
 
+class Districts(models.Model):
+    district_name=models.CharField(max_length=50)
+    def __str__(self):
+        return self.district_name
 
 class BloodBankDonor(models.Model):
     quantity_available=models.FloatField()
@@ -119,7 +123,7 @@ class Donor(models.Model):
     )
     batch = models.CharField(max_length=4,choices=batch_choices)
     city = models.CharField(max_length=50)
-    district = models.CharField(max_length=50)
+    district = models.ForeignKey(Districts,on_delete=models.CASCADE)
     pincode = models.CharField(max_length=6)
     last_donated_date = models.DateField(blank=True,null=True)
     diseases_choices = (
