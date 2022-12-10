@@ -10,55 +10,54 @@ from django.contrib.auth.models import (AbstractBaseUser,BaseUserManager,Permiss
 
 # Create your models here.
 
-class CustomAccountManager(BaseUserManager):
+class UserManager(BaseUserManager):
+    def create_user(self,username,email,password=None):
+        if username is None:
+            raise TypeError("Users should have a username")
 
-    def create_superuser(self, email, user_name, first_name, password, **other_fields):
+        if email is None:
+            raise TypeError("Users should have a email")
 
-        other_fields.setdefault('is_staff', True)
-        other_fields.setdefault('is_superuser', True)
-        other_fields.setdefault('is_active', True)
-
-        if other_fields.get('is_staff') is not True:
-            raise ValueError(
-                'Superuser must be assigned to is_staff=True.')
-        if other_fields.get('is_superuser') is not True:
-            raise ValueError(
-                'Superuser must be assigned to is_superuser=True.')
-
-        return self.create_user(email, user_name, first_name, password, **other_fields)
-
-    def create_user(self, email, user_name, first_name, password, **other_fields):
-
-        if not email:
-            raise ValueError(_('You must provide an email address'))
-
-        email = self.normalize_email(email)
-        user = self.model(email=email, user_name=user_name,
-                          first_name=first_name, **other_fields)
+        user=self.model(username=username,email=self.normalize_email(email))
         user.set_password(password)
-        user.save()
+        user.save(using=self._db)
         return user
 
+    def create_superuser(self,username,email,password=None):
+        if password is None:
+            raise TypeError("Password should not be none")
+        
+        # user=self.create_user(username,email,password)
+        user=self.create_user(username,email,password)
+        user.is_superuser=True
+        user.is_staff=True
+        user.save(using=self._db)
+        return user
 
-class NewUser(AbstractBaseUser, PermissionsMixin):
+class User(AbstractBaseUser,PermissionsMixin):
+    username=models.CharField(max_length=255,unique=True,db_index=True)
+    email=models.EmailField(max_length=255,unique=True,db_index=True)
+    is_verified=models.BooleanField(default=False)
+    is_active=models.BooleanField(default=True)
+    is_staff=models.BooleanField(default=False)
+    created_at=models.DateTimeField(auto_now_add=True)
+    updated_at=models.DateTimeField(auto_now_add=True)
+    
+    USERNAME_FIELD='email'
+    REQUIRED_FIELDS=['username']
 
-    email = models.EmailField(_('email address'), unique=True)
-    user_name = models.CharField(max_length=150, unique=True)
-    first_name = models.CharField(max_length=150, blank=True)
-    start_date = models.DateTimeField(default=timezone.now)
-    about = models.TextField(_(
-        'about'), max_length=500, blank=True)
-    is_staff = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=False)
-
-    objects = CustomAccountManager()
-
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['user_name', 'first_name']
-
+    objects=UserManager()
     def __str__(self):
-        return self.user_name
+        return self.username
 
+    def tokens(self):
+        return ''
+
+
+class Districts(models.Model):
+    district_name=models.CharField(max_length=50)
+    def __str__(self):
+        return self.district_name
 
 class BloodBankDonor(models.Model):
     quantity_available=models.FloatField()
@@ -85,6 +84,7 @@ class BloodCompatibility(models.Model):
         return self.p_blood
         
 class Donor(models.Model):
+    user_foreign = models.ForeignKey(User, on_delete=models.CASCADE)
     dname = models.CharField(max_length=100)
     gender_choices=[
         ('male',"Male"),
@@ -98,9 +98,8 @@ class Donor(models.Model):
 
     blood_group = models.ForeignKey(BloodCompatibility,on_delete=models.CASCADE)
     phoneno = models.CharField(max_length=10)
-    email = models.CharField(max_length=50)
     weight = models.IntegerField()
-    class_name_choices=(
+    branch_choices=(
         ("csa","CSA"),
         ("csb","CSB"),
         ("eca","ECA"),
@@ -109,7 +108,7 @@ class Donor(models.Model):
         ("mech","MECH"),
         ("eb","EB"),
     )
-    class_name= models.CharField(max_length=4,choices=class_name_choices)
+    branch= models.CharField(max_length=4,choices=branch_choices)
     batch_choices = (
         ("2023","2023"),
         ("2024","2024"),
@@ -117,9 +116,7 @@ class Donor(models.Model):
         ("2026","2026"),
     )
     batch = models.CharField(max_length=4,choices=batch_choices)
-    city = models.CharField(max_length=50)
-    district = models.CharField(max_length=50)
-    pincode = models.CharField(max_length=6)
+    district = models.ForeignKey(Districts,on_delete=models.CASCADE)
     last_donated_date = models.DateField(blank=True,null=True)
     diseases_choices = (
         ("no","No"),

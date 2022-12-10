@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import generics
-from .serializers import (BloodBankDonorSerializer, BloodCompatibilitySerializer,DonorSerializer,CustomUserSerializer)
-from .models import (BloodBankDonor,Donor,BloodCompatibility,CustomAccountManager,NewUser)
+from .serializers import (BloodBankDonorSerializer, BloodCompatibilitySerializer,DonorSerializer,UserSerializer,DistrictSerializer,RegisterSerializer)
+from .models import (BloodBankDonor,Donor,BloodCompatibility,UserManager,User,Districts)
 from rest_framework import generics,mixins,viewsets,status
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import status
@@ -13,32 +13,27 @@ from rest_framework.permissions import AllowAny
 
 # Create your views here
 
-class CustomUserCreate(APIView):
-    permission_classes = [AllowAny]
-
-    def post(self, request, format='json'):
-        serializer = CustomUserSerializer(data=request.data)
-        if serializer.is_valid():
-            user = serializer.save()
-            if user:
-                json = serializer.data
-                return Response(json, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class RegisterView(viewsets.GenericViewSet,mixins.CreateModelMixin):
+    serializer_class=RegisterSerializer
+    queryset=User.objects.all()
 
 
-class BlacklistTokenUpdateView(APIView):
-    permission_classes = [AllowAny]
-    authentication_classes = ()
+class LoggedInUserView(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self, request):
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
 
-    def post(self, request):
+class BlacklistTokenView(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request):
         try:
-            refresh_token = request.data["refresh_token"]
-            token = RefreshToken(refresh_token)
+            refresh_token=request.data["refresh_token"]
+            token=RefreshToken(refresh_token)
             token.blacklist()
-            return Response(status=status.HTTP_205_RESET_CONTENT)
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-
+            
 class DonorList(generics.ListAPIView):
     serializer_class= DonorSerializer
 
@@ -68,3 +63,7 @@ class DonorDelete(generics.RetrieveDestroyAPIView):
 class BloodBankDonorList(generics.ListAPIView):
     queryset = BloodBankDonor.objects.all()
     serializer_class=DonorSerializer
+
+class DistrictsList(generics.ListAPIView):
+    queryset = Districts.objects.all()
+    serializer_class=DistrictSerializer    

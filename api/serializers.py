@@ -1,4 +1,5 @@
-from .models import (BloodBankDonor,Donor,BloodCompatibility,CustomAccountManager,NewUser)
+from django.db import models
+from .models import (BloodBankDonor,Donor,BloodCompatibility,UserManager,User,Districts)
 from rest_framework import serializers
 from datetime import datetime
 from rest_framework.permissions import IsAuthenticated
@@ -6,28 +7,30 @@ from rest_framework_simplejwt.tokens import (RefreshToken,TokenError)
 from dataclasses import field, fields
 from importlib.metadata import files
 
-class CustomUserSerializer(serializers.ModelSerializer):
-    """
-    Currently unused in preference of the below.
-    """
-    email = serializers.EmailField(required=True)
-    user_name = serializers.CharField(required=True)
-    password = serializers.CharField(min_length=8, write_only=True)
+class RegisterSerializer(serializers.ModelSerializer):
+    password=serializers.CharField(max_length=68,min_length=6,write_only=True)
 
+    permission_classes=[IsAuthenticated]
     class Meta:
-        model = NewUser
-        fields = ('email', 'user_name', 'password')
-        extra_kwargs = {'password': {'write_only': True}}
+        model=User
+        fields=['email','username','password']
 
-    def create(self, validated_data):
-        password = validated_data.pop('password', None)
-        # as long as the fields are the same, we can just use this
-        instance = self.Meta.model(**validated_data)
-        if password is not None:
-            instance.set_password(password)
-        instance.save()
-        return instance
+    def validate(self,attrs):
+        email=attrs.get('email','')
+        username=attrs.get('username','')
 
+        if not username.isalnum():
+            raise serializers.ValidationError("username should contain only alpha numeric chars")
+        return attrs
+
+    def create(self,validated_data):
+        return User.objects.create_user(**validated_data)
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=User
+        fields=['id','username']
+        
 class BloodBankDonorSerializer(serializers.ModelSerializer):
     class Meta:
         model=BloodBankDonor
@@ -48,14 +51,15 @@ class DonorSerializer(serializers.ModelSerializer):
         bleeding=data['bleeding_disorders']
         hepatitis=data['hepatitis']
         hiv=data['hiv']
-        '''date1=data['last_donated_date']
+        date1=data['last_donated_date']
         date2=datetime.now().date()
-        diff=date1-date2'''
-        '''dob=data['dob']
-        diff2=date2-dob'''
+        diff=date2-date1
+        dob=data['dob']
+        diff2=date2-dob
+        
     
 
-        if weight<50 or diseases=='yes' or allergies=='yes' or cardiac=='yes' or bleeding=='yes' or hepatitis=='yes' or hiv=='yes' '''diff.days<90 or diff2.days<6570:''':
+        if weight<50 or diseases=='yes' or allergies=='yes' or cardiac=='yes' or bleeding=='yes' or hepatitis=='yes' or hiv=='yes' or diff.days<90 or diff2.days<6570 : 
             raise serializers.ValidationError('Not eligible for donation.')
 
         '''diseases=data['diseases']
@@ -84,14 +88,22 @@ class DonorSerializer(serializers.ModelSerializer):
 
         return data
 
+    blood_group = serializers.StringRelatedField()
 
+    '''district = serializers.CharField(source='district.district_name')'''
+    '''blood_group = serializers.CharField(source='blood_group.p_blood')'''
     class Meta:
         model=Donor
         fields='__all__'
     
+    
+   
     def to_representation(self,instance):
         rep= super(DonorSerializer,self).to_representation(instance)
-        rep['blood_group'] = instance.blood_group.p_blood
+        rep['district'] = instance.district.district_name
         return rep
-    
 
+class DistrictSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Districts
+        fields='__all__'
