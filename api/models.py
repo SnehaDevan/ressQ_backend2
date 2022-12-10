@@ -101,7 +101,6 @@ class Donor(models.Model):
 
     blood_group = models.ForeignKey(BloodCompatibility,on_delete=models.CASCADE)
     phoneno = models.CharField(max_length=10)
-    email = models.CharField(max_length=50)
     weight = models.IntegerField()
     branch_choices=(
         ("csa","CSA"),
