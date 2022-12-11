@@ -7,11 +7,12 @@ from email.mime import base
 
 router=DefaultRouter()
 router.register('register',RegisterView,basename='register')
+router.register('donors-register',DonorCreate,basename='donors-register')
 urlpatterns = [
     path('',include(router.urls)),
     path('donors/', DonorList.as_view()),
     path('donors/<int:pk>/', DonorDetail.as_view()),
-    path('donors/register/', DonorCreate.as_view()),
+    # path('donors/register/', DonorCreate.as_view()),
     path('donors-update/<int:pk>/', DonorUpdate.as_view()),
     path('donors-delete/<int:pk>/', DonorDelete.as_view()),
     path('blood-bank/', BloodBankDonorList.as_view()),

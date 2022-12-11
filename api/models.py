@@ -87,26 +87,26 @@ class Donor(models.Model):
     user_foreign = models.ForeignKey(User, on_delete=models.CASCADE)
     dname = models.CharField(max_length=100)
     gender_choices=[
-        ('male',"Male"),
-        ("female","Female"),
-        ("Others","others"),
+        ("Male","Male"),
+        ("Female","Female"),
+        ("Others","Others"),
     ]
     gender = models.CharField(
         max_length=6,choices=gender_choices,
         )
     dob = models.DateField()
 
-    blood_group = models.ForeignKey(BloodCompatibility,on_delete=models.CASCADE)
+    blood_group = models.CharField(max_length=5)
     phoneno = models.CharField(max_length=10)
     weight = models.IntegerField()
     branch_choices=(
-        ("csa","CSA"),
-        ("csb","CSB"),
-        ("eca","ECA"),
-        ("ecb","ECB"),
-        ("eee","EEE"),
-        ("mech","MECH"),
-        ("eb","EB"),
+        ("CSA","CSA"),
+        ("CSB","CSB"),
+        ("ECA","ECA"),
+        ("ECB","ECB"),
+        ("EEE","EEE"),
+        ("MECH","MECH"),
+        ("EB","EB"),
     )
     branch= models.CharField(max_length=4,choices=branch_choices)
     batch_choices = (
@@ -116,45 +116,45 @@ class Donor(models.Model):
         ("2026","2026"),
     )
     batch = models.CharField(max_length=4,choices=batch_choices)
-    district = models.ForeignKey(Districts,on_delete=models.CASCADE)
+    district = models.CharField(max_length=50)
     last_donated_date = models.DateField(blank=True,null=True)
     diseases_choices = (
-        ("no","No"),
-        ("yes","Yes"),
+        ("No","No"),
+        ("Yes","Yes"),
     )
     diseases = models.CharField(max_length=3,choices=diseases_choices)
     allergies_choices = (
-        ("no","No"),
-        ("yes","Yes"),
+        ("No","No"),
+        ("Yes","Yes"),
     )
     allergies = models.CharField(max_length=3,choices=allergies_choices)
     cardiac_choices=[
-        ("no", "No"),
-        ("yes","Yes"),
+        ("No", "No"),
+        ("Yes","Yes"),
     ]
     cardiac = models.CharField(
         max_length=4, blank=True, null=True,
         choices=cardiac_choices,
         )
     bleeding_disorders_choices=[
-        ("no","No"),
-        ("yes","Yes"),
+        ("No","No"),
+        ("Yes","Yes"),
     ]
     bleeding_disorders = models.CharField(
         max_length=4, blank=True, null=True,
         choices=bleeding_disorders_choices,
         )
     hiv_choices=[
-        ("no","No"),
-        ("yes","Yes"),
+        ("No","No"),
+        ("Yes","Yes"),
     ]
     hiv =models.CharField(
         max_length=4, blank=True, null=True,
         choices=hiv_choices,
         )
     hepatitis_choices=[
-        ("no","No"),
-        ("yes","Yes"),
+        ("No","No"),
+        ("Yes","Yes"),
     ]
     hepatitis =models.CharField(
         max_length=4, blank=True, null=True,

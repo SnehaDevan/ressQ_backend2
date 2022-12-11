@@ -44,7 +44,7 @@ class DonorList(generics.ListAPIView):
             queryset= queryset.filter(blood_group=bg)
         return queryset
 
-class DonorCreate(generics.CreateAPIView):
+class DonorCreate(viewsets.GenericViewSet,mixins.DestroyModelMixin,mixins.UpdateModelMixin,mixins.CreateModelMixin,mixins.RetrieveModelMixin,mixins.ListModelMixin):
     queryset = Donor.objects.all()
     serializer_class=DonorSerializer
 
